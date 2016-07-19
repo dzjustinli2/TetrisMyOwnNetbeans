@@ -209,7 +209,8 @@ public class Board {
 
             grid[pieceX][pieceY] = true;
 
-            //FIXME: why "+ 1" is needed here 
+            //add 1 to "pieceY" because the height of a colume is the 
+            //y coordinate of the highest piece in that colume, plus one
             if (heights[pieceX] < pieceY + 1) {
                 heights[pieceX] = pieceY + 1;
             }
@@ -242,7 +243,7 @@ public class Board {
         // clearing row using a single pass method given in the handout
         for (rowTo = 0, rowFrom = 1; rowFrom < maxHeight; rowTo++, rowFrom++) {
             if (!hasFilledRow && widths[rowTo] == width) {
-                hasFilledRow = true;
+                hasFilledRow = true; 
                 rowsCleared++;
             }
 
