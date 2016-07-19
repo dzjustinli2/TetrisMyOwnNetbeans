@@ -19,6 +19,14 @@ class Board {
     /*TODO: where to initalise "maxHeight", where it is declared or where it is needed, or in the constructor? */
     private int maxHeight;
 
+    //where should "backupWidthOfRows" and "backupHeightOfColumes" 
+    private boolean[][] backupGrid;
+    private int[] backupWidthOfRows;
+    private int[] backupHeightOfColumes;
+    private int backupMaxHeight;
+
+    private boolean committed = true;
+
     private final boolean DEBUG = false;
 
     private Board(int widthOfBoard, int heightOfBoard) {
@@ -29,6 +37,15 @@ class Board {
         widthOfRows = new int[heightOfBoard];
         heightOfColumes = new int[widthOfBoard];
 
+        //this is where "maxHeight" should be intialised, because when the "Board" object
+        //has just been intialised, the "maxHeight" should be 0 because no piece has been placed on the board
+        maxHeight = 0;
+
+        backupGrid = new boolean[widthOfBoard][heightOfBoard];
+        backupWidthOfRows = new int[heightOfBoard];
+        backupHeightOfColumes = new int[widthOfBoard];
+        backupMaxHeight = 0;
+
     }
 
     private static final int PLACE_OK = 0;
@@ -37,6 +54,13 @@ class Board {
     private static final int PLACE_BAD = 3;
 
     int place(Piece placedPiece, int xCoordinateOnBoard, int yCoordinateOnBoard) {
+
+        if (committed == true) {
+            committed = false;
+        } else {
+            throw new RuntimeException("board is in the state of uncommited when the place method is called");
+        }
+
         int result = PLACE_OK;
         int placedPieceXCoordinate;
         int placePieceYCoordinate;
@@ -77,24 +101,32 @@ class Board {
             }
         }
 
+        //"computeMaxHeight()" is called every time the "int place(Piece placedPiece, int xCoordinateOnBoard, int yCoordinateOnBoard) {}
+        //is called, but instead of going through "heightOfColumes" every time, is there an more smarter, convineint and faster way 
+        //to recalculate "maxHeight"? Or calling "computeMaxHeight()" is good enough in these aspects .
+        computeMaxHeight();
+
         return result;
     }
-    
-    void clearRow(){
-        //"numberOfRowsCleared" is used recalculate "maxHeight" 
+
+    void clearRow() {
+
+        committed = false;
+
+        //"numberOfRowsCleared" is used recalculate "maxHeight",
+        //also, should I return the "numberOfRowscleared"? 
         int numberOfRowsCleared = 0;
         //is "hasFilledRow" redundant 
         boolean hasFilledRow = false;
         int rowTo, rowFrom;
-  
 
         // when "rowFrom < maxHeight", simply fill all rows above "rowTo" to false 
         //note: "rowFrom" is index and starts from 0, "maxHeight" starts at 1
         for (rowTo = 0, rowFrom = 1; rowFrom < maxHeight; rowTo++, rowFrom++) {
-            if(widthOfRows[rowTo] == WIDTH){
+            if (widthOfRows[rowTo] == WIDTH) {
                 //this if statment should only ever be executed once, i.e. when the first filled row
                 //is detected, which in turn means that "hasFilledRow" should still be false 
-                if(!hasFilledRow){
+                if (!hasFilledRow) {
                     hasFilledRow = true;
                     numberOfRowsCleared++;
                 }
@@ -107,28 +139,29 @@ class Board {
                 }
             }
         }
-        
+
         fillEmptyRows(rowTo, rowFrom);
-        
+
         //TODO: need to recompute "maxHeight" here, can simply use "computeMaxHeight()" method
         //or come up with a quicker way to recompute "maxHeight" 
         computeMaxHeight();
     }
 
-    private int computeMaxHeight(){
-        //this is where "maxHeight" is initialised. 
-        maxHeight = 0;
-        for(int i = 0; i < heightOfColumes.length; i++){
-            if(maxHeight < heightOfColumes[i]){
+    private int computeMaxHeight() {
+//        //TODO: initalise "maxHeight" here is too late, but where should it be initialised then
+//        maxHeight = 0;
+
+        for (int i = 0; i < heightOfColumes.length; i++) {
+            if (maxHeight < heightOfColumes[i]) {
                 maxHeight = heightOfColumes[i];
             }
         }
         return maxHeight;
     }
-    
-    private void copyRow(int rowTo, int rowFrom){
-        for(int i = 0; i < WIDTH; i++){
-            grid[i][rowTo] = grid[i][rowFrom]; 
+
+    private void copyRow(int rowTo, int rowFrom) {
+        for (int i = 0; i < WIDTH; i++) {
+            grid[i][rowTo] = grid[i][rowFrom];
         }
     }
 
@@ -136,30 +169,29 @@ class Board {
         //"rowTo += 1" here because the original "rowTo" is copied from the original "rowFrom",
         //therefore we need to add 1 to "rowTo" so we are filling rows all rows that are 
         //previously occupied but is empty now 
-        for(rowTo += 1; rowTo <= rowFrom; rowTo++){
-            for(int i = 0; i < WIDTH; i++){
+        for (rowTo += 1; rowTo <= rowFrom; rowTo++) {
+            for (int i = 0; i < WIDTH; i++) {
                 grid[i][rowTo] = false;
             }
         }
     }
-    
-    int dropHeight(Piece piece, int xCoordinateOfLowerLeftCornerOfThePieceOnBoard){
-        
+
+    int dropHeight(Piece piece, int xCoordinateOfLowerLeftCornerOfThePieceOnBoard) {
+
         int dropStopHeightInYCoordinate = 0;
-        
+
         int[] skirtOfPiece = piece.getSkirt();
-        for(int i = 0; i < skirtOfPiece.length; i++){
+        for (int i = 0; i < skirtOfPiece.length; i++) {
             int heightOfColumeAtXCoordinate = heightOfColumes[xCoordinateOfLowerLeftCornerOfThePieceOnBoard + i];
             int heightOfColumeAtXCoordinateAfterPieceDropped = heightOfColumeAtXCoordinate + 1;
-            if(heightOfColumeAtXCoordinateAfterPieceDropped > dropStopHeightInYCoordinate){
+            if (heightOfColumeAtXCoordinateAfterPieceDropped > dropStopHeightInYCoordinate) {
                 dropStopHeightInYCoordinate = heightOfColumeAtXCoordinateAfterPieceDropped;
             }
         }
-        
+
         return dropStopHeightInYCoordinate;
     }
-    
-    
+
 //Wrong logic, but interesting to know why    
 //    int dropHeight(Piece piece, int xCoordinate){
 //        int dropStopHeight = 0;
@@ -174,5 +206,18 @@ class Board {
 //        return dropStopHeight;
 //    }
 //    
+    void undo() {
+        if (committed) {
+            return;
+        }
+
+        committed = true;
+
+        grid = backupGrid;
+        widthOfRows = backupWidthOfRows;
+        heightOfColumes = backupHeightOfColumes;
+        maxHeight = backupMaxHeight;
+
+    }
 
 }
