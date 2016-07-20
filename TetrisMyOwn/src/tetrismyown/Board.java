@@ -5,6 +5,8 @@
  */
 package tetrismyown;
 
+import java.util.Arrays;
+
 /**
  *
  * @author justin
@@ -27,7 +29,7 @@ class Board {
 
     private boolean committed = true;
 
-    private final boolean DEBUG = false;
+    private final boolean DEBUG = true;
 
     private Board(int widthOfBoard, int heightOfBoard) {
         WIDTH = widthOfBoard;
@@ -52,6 +54,30 @@ class Board {
     private static final int PLACE_ROW_FILLED = 1;
     private static final int PLACE_OUT_OF_BOUNDS = 2;
     private static final int PLACE_BAD = 3;
+
+    int getWIDTH() {
+        return WIDTH;
+    }
+
+    int getHEIGHT() {
+        return HEIGHT;
+    }
+
+    boolean[][] getGrid() {
+        return grid;
+    }
+
+    int[] getWidthOfRows() {
+        return widthOfRows;
+    }
+
+    int[] getHeightOfColumes() {
+        return heightOfColumes;
+    }
+
+    int getMaxHeight() {
+        return maxHeight;
+    }
 
     int place(Piece placedPiece, int xCoordinateOnBoard, int yCoordinateOnBoard) {
 
@@ -88,8 +114,6 @@ class Board {
 
             grid[placedPieceXCoordinate][placePieceYCoordinate] = true;
 
-            //"heightOfColume" is intialised here, because only after a piece has been place,
-            //should we be able to calculate "heightOfColumes"
             if (heightOfColumes[placedPieceXCoordinate] < placePieceYCoordinate + 1) {
                 heightOfColumes[placedPieceXCoordinate] = placePieceYCoordinate + 1;
             }
@@ -105,6 +129,8 @@ class Board {
         //is called, but instead of going through "heightOfColumes" every time, is there an more smarter, convineint and faster way 
         //to recalculate "maxHeight"? Or calling "computeMaxHeight()" is good enough in these aspects .
         computeMaxHeight();
+        
+        sanityCheck();
 
         return result;
     }
@@ -134,9 +160,9 @@ class Board {
                     numberOfRowsCleared++;
                     rowFrom++;
                 }
-                if (hasFilledRow) {
-                    copyRow(rowTo, rowFrom);
-                }
+            }
+            if (hasFilledRow) {
+                copyRow(rowTo, rowFrom);
             }
         }
 
@@ -145,6 +171,8 @@ class Board {
         //TODO: need to recompute "maxHeight" here, can simply use "computeMaxHeight()" method
         //or come up with a quicker way to recompute "maxHeight" 
         computeMaxHeight();
+        
+        sanityCheck();
     }
 
     private int computeMaxHeight() {
@@ -183,9 +211,9 @@ class Board {
         int[] skirtOfPiece = piece.getSkirt();
         for (int i = 0; i < skirtOfPiece.length; i++) {
             int heightOfColumeAtXCoordinate = heightOfColumes[xCoordinateOfLowerLeftCornerOfThePieceOnBoard + i];
-            int heightOfColumeAtXCoordinateAfterPieceDropped = heightOfColumeAtXCoordinate + 1;
-            if (heightOfColumeAtXCoordinateAfterPieceDropped > dropStopHeightInYCoordinate) {
-                dropStopHeightInYCoordinate = heightOfColumeAtXCoordinateAfterPieceDropped;
+            int stopHeight = heightOfColumeAtXCoordinate + 1;
+            if (stopHeight > dropStopHeightInYCoordinate) {
+                dropStopHeightInYCoordinate = stopHeight;
             }
         }
 
@@ -217,7 +245,45 @@ class Board {
         widthOfRows = backupWidthOfRows;
         heightOfColumes = backupHeightOfColumes;
         maxHeight = backupMaxHeight;
+        
+        sanityCheck();
 
+    }
+    
+    void sanityCheck(){
+        if(!DEBUG){
+            return;
+        }
+        
+        int checkMaxHeight = 0;
+        int[] checkHeightOfColumes = new int[WIDTH];
+        int[] checkWidthOfRows = new int[HEIGHT];
+        //TODO: simply checking for the width of each row may not be enought,
+        //because it does not take into account where expected width and actual width of a row
+        //is the same but where this row is filled is different 
+        for(int i = 0; i < WIDTH; i++){
+            for(int j = 0; j < HEIGHT; j++){
+                if(grid[i][j]){
+                    checkWidthOfRows[j] += 1;
+                    checkHeightOfColumes[i] = j + 1;
+                }
+            }
+            if(checkHeightOfColumes[i] > checkMaxHeight){
+                checkHeightOfColumes[i] = checkMaxHeight;
+            }
+        }
+        
+        if(Arrays.equals(widthOfRows, checkWidthOfRows)){
+            throw new RuntimeException("Actual width of row and checked width of rows does not match");
+        }
+        
+        if(Arrays.equals(heightOfColumes, checkHeightOfColumes)){
+            throw new RuntimeException("Actual height of columes and checked height of columes does not match");
+        }
+        
+        if(maxHeight != checkMaxHeight){
+            throw new RuntimeException("Actual max height does not equal to checked max height");
+        }
     }
 
 }
