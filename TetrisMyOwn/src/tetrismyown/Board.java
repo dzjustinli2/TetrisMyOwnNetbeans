@@ -31,7 +31,7 @@ class Board {
 
     private final boolean DEBUG = true;
 
-    private Board(int widthOfBoard, int heightOfBoard) {
+     Board(int widthOfBoard, int heightOfBoard) {
         WIDTH = widthOfBoard;
         HEIGHT = heightOfBoard;
         grid = new boolean[widthOfBoard][heightOfBoard];
@@ -269,15 +269,15 @@ class Board {
                 }
             }
             if(checkHeightOfColumes[i] > checkMaxHeight){
-                checkHeightOfColumes[i] = checkMaxHeight;
+                checkMaxHeight = checkHeightOfColumes[i];
             }
         }
         
-        if(Arrays.equals(widthOfRows, checkWidthOfRows)){
+        if(!Arrays.equals(widthOfRows, checkWidthOfRows)){
             throw new RuntimeException("Actual width of row and checked width of rows does not match");
         }
         
-        if(Arrays.equals(heightOfColumes, checkHeightOfColumes)){
+        if(!Arrays.equals(heightOfColumes, checkHeightOfColumes)){
             throw new RuntimeException("Actual height of columes and checked height of columes does not match");
         }
         
