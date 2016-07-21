@@ -86,6 +86,8 @@ class Board {
         } else {
             throw new RuntimeException("board is in the state of uncommited when the place method is called");
         }
+        
+        backup();
 
         int result = PLACE_OK;
         int placedPieceXCoordinate;
@@ -133,6 +135,15 @@ class Board {
         sanityCheck();
 
         return result;
+    }
+    
+    private void backup(){
+        System.arraycopy(widthOfRows, 0, backupWidthOfRows, 0, HEIGHT);
+        System.arraycopy(heightOfColumes, 0, backupHeightOfColumes, 0, WIDTH);
+        for(int i = 0; i < grid.length; i++){
+            System.arraycopy(grid[i], 0, backupGrid[i], 0, grid[i].length);
+        }
+        backupMaxHeight = maxHeight;
     }
 
     void clearRow() {
@@ -190,6 +201,7 @@ class Board {
     private void copyRow(int rowTo, int rowFrom) {
         for (int i = 0; i < WIDTH; i++) {
             grid[i][rowTo] = grid[i][rowFrom];
+            widthOfRows[rowTo] = widthOfRows[rowFrom];
         }
     }
 
@@ -197,7 +209,7 @@ class Board {
         //"rowTo += 1" here because the original "rowTo" is copied from the original "rowFrom",
         //therefore we need to add 1 to "rowTo" so we are filling rows all rows that are 
         //previously occupied but is empty now 
-        for (rowTo += 1; rowTo <= rowFrom; rowTo++) {
+        for ( ; rowTo <= rowFrom; rowTo++) {
             for (int i = 0; i < WIDTH; i++) {
                 grid[i][rowTo] = false;
             }
@@ -239,7 +251,7 @@ class Board {
             return;
         }
 
-        committed = true;
+        commit();
 
         grid = backupGrid;
         widthOfRows = backupWidthOfRows;
@@ -250,7 +262,11 @@ class Board {
 
     }
     
-    void sanityCheck(){
+    void commit(){
+        committed = true;
+    }
+    
+    private void sanityCheck(){
         if(!DEBUG){
             return;
         }
