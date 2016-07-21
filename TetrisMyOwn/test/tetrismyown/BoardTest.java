@@ -24,7 +24,9 @@ public class BoardTest {
     Board board;
     Piece pyramid;
     Piece pyramid2;
+    Piece pyramid4;
     Piece square;
+    Piece stick;
 
     @BeforeClass
     public static void setUpClass() {
@@ -40,7 +42,9 @@ public class BoardTest {
         pyramid = new Piece(Piece.PYRAMID_STRING);
         //should I make "computeNextRotation()" method in "Piece" class private? 
         pyramid2 = pyramid.computeNextRotation();
+        pyramid4 = pyramid2.computeNextRotation().computeNextRotation();
         square = new Piece(Piece.SQUARE_STRING);
+        stick = new Piece(Piece.STICK_STRING);
 
     }
 
@@ -88,107 +92,176 @@ public class BoardTest {
             {true, false, false, false, false, false}
         };
         boolean[][] result = board.getGrid();
-//        assertTrue(Arrays.deepEquals(expResult, result));
+        assertTrue(Arrays.deepEquals(expResult, result));
         assertArrayEquals(expResult, result);
     }
 
-//    /**
-//     * Test of getWidthOfRows method, of class Board.
-//     */
-//    @Test
-//    public void testGetWidthOfRows() {
-//        System.out.println("getWidthOfRows");
-//        Board instance = null;
-//        int[] expResult = null;
-//        int[] result = instance.getWidthOfRows();
-//        assertArrayEquals(expResult, result);
-//        // TODO review the generated test code and remove the default call to fail.
-//        fail("The test case is a prototype.");
-//    }
-//
-//    /**
-//     * Test of getHeightOfColumes method, of class Board.
-//     */
-//    @Test
-//    public void testGetHeightOfColumes() {
-//        System.out.println("getHeightOfColumes");
-//        Board instance = null;
-//        int[] expResult = null;
-//        int[] result = instance.getHeightOfColumes();
-//        assertArrayEquals(expResult, result);
-//        // TODO review the generated test code and remove the default call to fail.
-//        fail("The test case is a prototype.");
-//    }
-//
-//    /**
-//     * Test of getMaxHeight method, of class Board.
-//     */
-//    @Test
-//    public void testGetMaxHeight() {
-//        System.out.println("getMaxHeight");
-//        Board instance = null;
-//        int expResult = 0;
-//        int result = instance.getMaxHeight();
-//        assertEquals(expResult, result);
-//        // TODO review the generated test code and remove the default call to fail.
-//        fail("The test case is a prototype.");
-//    }
-//
-//    /**
-//     * Test of place method, of class Board.
-//     */
-//    @Test
-//    public void testPlace() {
-//        System.out.println("place");
-//        Piece placedPiece = null;
-//        int xCoordinateOnBoard = 0;
-//        int yCoordinateOnBoard = 0;
-//        Board instance = null;
-//        int expResult = 0;
-//        int result = instance.place(placedPiece, xCoordinateOnBoard, yCoordinateOnBoard);
-//        assertEquals(expResult, result);
-//        // TODO review the generated test code and remove the default call to fail.
-//        fail("The test case is a prototype.");
-//    }
-//
-//    /**
-//     * Test of clearRow method, of class Board.
-//     */
-//    @Test
-//    public void testClearRow() {
-//        System.out.println("clearRow");
-//        Board instance = null;
-//        instance.clearRow();
-//        // TODO review the generated test code and remove the default call to fail.
-//        fail("The test case is a prototype.");
-//    }
-//
-//    /**
-//     * Test of dropHeight method, of class Board.
-//     */
-//    @Test
-//    public void testDropHeight() {
-//        System.out.println("dropHeight");
-//        Piece piece = null;
-//        int xCoordinateOfLowerLeftCornerOfThePieceOnBoard = 0;
-//        Board instance = null;
-//        int expResult = 0;
-//        int result = instance.dropHeight(piece, xCoordinateOfLowerLeftCornerOfThePieceOnBoard);
-//        assertEquals(expResult, result);
-//        // TODO review the generated test code and remove the default call to fail.
-//        fail("The test case is a prototype.");
-//    }
-//
-//    /**
-//     * Test of undo method, of class Board.
-//     */
-//    @Test
-//    public void testUndo() {
-//        System.out.println("undo");
-//        Board instance = null;
-//        instance.undo();
-//        // TODO review the generated test code and remove the default call to fail.
-//        fail("The test case is a prototype.");
-//    }
+    @Test
+    public void testGetGridAfterPlacingPyramidAndPyramid2() {
+        board.place(pyramid, 0, 0);
+        board.commit();
+        board.place(pyramid2, 1, 1);
+        boolean[][] result = board.getGrid();
 
+        boolean[][] expResult = {
+            {true, false, false, false, false, false},
+            {true, true, true, false, false, false},
+            {true, true, true, true, false, false}
+        };
+
+        assertArrayEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetGridAfterPlacingPyramidAndPyramid2AndSquare() {
+        board.place(pyramid, 0, 0);
+        board.commit();
+        board.place(pyramid4, 0, 1);
+        board.commit();
+        board.place(square, 1, 3);
+
+        boolean[][] result = board.getGrid();
+
+        boolean[][] expResult = {
+            {true, true, true, true, false, false},
+            {true, true, true, true, true, false},
+            {true, false, false, true, true, false}
+        };
+
+        assertArrayEquals(expResult, result);
+        assertTrue(Arrays.deepEquals(expResult, result));
+        assertThat(expResult, is(equalTo(result)));
+    }
+
+    /**
+     * Test of getWidthOfRows method, of class Board.
+     */
+    @Test
+    public void testGetWidthOfRows() {
+        System.out.println("getWidthOfRows");
+
+        board.place(pyramid, 0, 0);
+        board.commit();
+        board.place(pyramid4, 0, 1);
+        board.commit();
+        board.place(square, 1, 3);
+
+        int[] expResult = {3, 2, 2, 3, 2, 0};
+        int[] result = board.getWidthOfRows();
+
+        assertArrayEquals(expResult, result);
+
+    }
+
+    /**
+     * Test of getHeightOfColumes method, of class Board.
+     */
+    @Test
+    public void testGetHeightOfColumes() {
+        System.out.println("getHeightOfColumes");
+
+        board.place(stick, 0, 0);
+        board.commit();
+        board.place(square, 1, 0);
+
+        int[] expResult = {4, 2, 2};
+        int[] result = board.getHeightOfColumes();
+
+        assertArrayEquals(expResult, result);
+    }
+
+    /**
+     * Test of getMaxHeight method, of class Board.
+     */
+    @Test
+    public void testGetMaxHeight() {
+        System.out.println("getMaxHeight");
+
+        board.place(stick, 0, 0);
+        board.commit();
+        board.place(square, 1, 0);
+
+        int expResult = 4;
+        int result = board.getMaxHeight();
+        assertEquals(expResult, result);
+
+    }
+
+    /**
+     * Test of place method, of class Board.
+     */
+    @Test
+    public void testPlace() {
+        System.out.println("place");
+        int result = board.place(pyramid, 1, 0);
+        assertEquals(2, result);
+
+        board.undo();
+
+        assertEquals(0, board.getMaxHeight());
+
+        int[] expectedWithOfRows = {0, 0, 0, 0, 0, 0};
+        int[] expectedHeightOfColumes = {0, 0, 0};
+
+        assertArrayEquals(expectedHeightOfColumes, board.getHeightOfColumes());
+        assertArrayEquals(expectedWithOfRows, board.getWidthOfRows());
+    }
+
+    /**
+     * Test of clearRow method, of class Board.
+     */
+    @Test
+    public void testClearRow() {
+        System.out.println("clearRow");
+
+        board.place(pyramid, 0, 0);
+
+        board.clearRow();
+        
+        int[] expectedHeightOfColumes = {0, 1, 0};
+        
+        assertArrayEquals(expectedHeightOfColumes, board.getHeightOfColumes());
+//        assertEquals(2, board.getMaxHeight());
+
+    }
+
+    /**
+     * Test of dropHeight method, of class Board.
+     */
+    @Test
+    public void testDropHeight() {
+        System.out.println("dropHeight");
+        Piece piece = null;
+        int xCoordinateOfLowerLeftCornerOfThePieceOnBoard = 0;
+        Board instance = null;
+        int expResult = 0;
+        int result = instance.dropHeight(piece, xCoordinateOfLowerLeftCornerOfThePieceOnBoard);
+        assertEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of undo method, of class Board.
+     */
+    @Test
+    public void testUndo() {
+        System.out.println("undo");
+        Board instance = null;
+        instance.undo();
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of commit method, of class Board.
+     */
+    @Test
+    public void testCommit() {
+        System.out.println("commit");
+        Board instance = null;
+        instance.commit();
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
 }
