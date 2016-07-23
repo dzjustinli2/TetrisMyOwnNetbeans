@@ -248,18 +248,20 @@ class Board {
 
     int dropHeight(Piece piece, int xCoordinateOfLowerLeftCornerOfThePieceOnBoard) {
 
-        int dropStopHeightInYCoordinate = 0;
+        int pieceDropStopHeight = 0;
 
         int[] skirtOfPiece = piece.getSkirt();
         for (int i = 0; i < skirtOfPiece.length; i++) {
             int heightOfColumeAtXCoordinate = heightOfColumes[xCoordinateOfLowerLeftCornerOfThePieceOnBoard + i];
+            //add 1 to "heightOfColumeAtXCoordinate because the piece is going to stop one level above the 
+            //existing height of this colume 
             int stopHeight = heightOfColumeAtXCoordinate + 1;
-            if (stopHeight > dropStopHeightInYCoordinate) {
-                dropStopHeightInYCoordinate = stopHeight;
+            if (stopHeight > pieceDropStopHeight) {
+                pieceDropStopHeight = stopHeight;
             }
         }
 
-        return dropStopHeightInYCoordinate;
+        return pieceDropStopHeight;
     }
 
 //Wrong logic, but interesting to know why    
