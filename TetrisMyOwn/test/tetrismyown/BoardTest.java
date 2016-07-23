@@ -276,14 +276,25 @@ public class BoardTest {
     @Test
     public void testDropHeight() {
         System.out.println("dropHeight");
-        Piece piece = null;
+        
+        board.place(pyramid, 0, 0);
+        board.commit();
+
         int xCoordinateOfLowerLeftCornerOfThePieceOnBoard = 0;
-        Board instance = null;
-        int expResult = 0;
-        int result = instance.dropHeight(piece, xCoordinateOfLowerLeftCornerOfThePieceOnBoard);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        
+        int result = board.dropHeight(pyramid3, xCoordinateOfLowerLeftCornerOfThePieceOnBoard);
+        
+        assertEquals(3, result);
+    }
+    
+    @Test
+    public void testDropHeight2(){
+        board.place(stick, 1, 0);
+        board.commit();
+        
+        int result = board.dropHeight(pyramid3, 0);
+        
+        assertEquals(5, result);
     }
 
     /**
@@ -294,18 +305,6 @@ public class BoardTest {
         System.out.println("undo");
         Board instance = null;
         instance.undo();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of commit method, of class Board.
-     */
-    @Test
-    public void testCommit() {
-        System.out.println("commit");
-        Board instance = null;
-        instance.commit();
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
