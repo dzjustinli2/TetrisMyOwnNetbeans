@@ -24,9 +24,12 @@ public class BoardTest {
     Board board;
     Piece pyramid;
     Piece pyramid2;
+    Piece pyramid3;
     Piece pyramid4;
     Piece square;
     Piece stick;
+    Piece s2;
+    Piece s22;
 
     @BeforeClass
     public static void setUpClass() {
@@ -42,9 +45,12 @@ public class BoardTest {
         pyramid = new Piece(Piece.PYRAMID_STRING);
         //should I make "computeNextRotation()" method in "Piece" class private? 
         pyramid2 = pyramid.computeNextRotation();
+        pyramid3 = pyramid2.computeNextRotation();
         pyramid4 = pyramid2.computeNextRotation().computeNextRotation();
         square = new Piece(Piece.SQUARE_STRING);
         stick = new Piece(Piece.STICK_STRING);
+        s2 = new Piece(Piece.S2_STRING);
+        s22 = s2.computeNextRotation();
 
     }
 
@@ -217,12 +223,51 @@ public class BoardTest {
         board.place(pyramid, 0, 0);
 
         board.clearRow();
-        
+
         int[] expectedHeightOfColumes = {0, 1, 0};
-        
+
         assertArrayEquals(expectedHeightOfColumes, board.getHeightOfColumes());
 //        assertEquals(2, board.getMaxHeight());
 
+    }
+
+    @Test
+    public void testClearRowAfterPlacingPyramidAndPyramid3() {
+        board.place(pyramid, 0, 0);
+        board.commit();
+        board.place(pyramid3, 0, 2);
+        board.clearRow();
+
+        int[] expectedHeightOfColumes = {0, 2, 0};
+
+        assertArrayEquals(expectedHeightOfColumes, board.getHeightOfColumes());
+    }
+
+    @Test
+    public void testClearRowPyramidStickS2() {
+        board.place(pyramid, 0, 0);
+        board.commit();
+        board.place(stick, 0, 1);
+        board.commit();
+        board.place(s22, 1, 2);
+
+        board.clearRow();
+
+        boolean[][] expResult = {
+            {true, true, true, false, false, false},
+            {true, true, false, false, false, false},
+            {false, false, true, false, false, false}
+        };
+        
+        int[] expectedWithOfRows = { 2, 2, 2, 0, 0, 0};
+        int[] expectedHeightOfColumes = { 3, 2, 1};
+        
+        assertArrayEquals(expResult, board.getGrid());
+        assertTrue(Arrays.deepEquals(expResult, board.getGrid()));
+        
+        assertArrayEquals(expectedWithOfRows, board.getWidthOfRows());
+        assertArrayEquals(expectedHeightOfColumes, board.getHeightOfColumes()); 
+        assertEquals(3, board.getMaxHeight());
     }
 
     /**
