@@ -260,7 +260,7 @@ public class BoardTest {
         };
         
         int[] expectedWithOfRows = { 2, 2, 2, 0, 0, 0};
-        int[] expectedHeightOfColumes = { 3, 2, 1};
+        int[] expectedHeightOfColumes = { 3, 2, 3};
         
         assertArrayEquals(expResult, board.getGrid());
         assertTrue(Arrays.deepEquals(expResult, board.getGrid()));
